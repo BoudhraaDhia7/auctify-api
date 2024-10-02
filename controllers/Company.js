@@ -9,38 +9,75 @@ import {UserModel} from "../models/Users.js";
 //register company
 export const registerCompany = async (req, res, next) => {
   try {
-    const { password, userName } = req.body;
-    const user = await CompanyModel.findOne({ userName });
+    const { password, userName, companyName, email, phone } = req.body;
+    console.log(req.body, userName, companyName, email, phone);
 
+    // Check if the user already exists (by username or email)
+    const user = await CompanyModel.findOne({
+      $or: [{ userName: userName }, { email: email }],
+    });
+
+    if (user) {
+      return res.status(400).json({
+        message: "Nom d'utilisateur ou email déjà utilisé",
+      });
+    }
+
+    // Validate the inputs
+    if (typeof userName !== 'string') {
+      return res.status(400).json({
+        message: "Le nom d'utilisateur doit être une chaîne de caractères",
+      });
+    }
+    if (typeof password !== 'string') {
+      return res.status(400).json({
+        message: "Le mot de passe doit être une chaîne de caractères",
+      });
+    }
     if (!password) {
-      return res.status(400).json({ message: "Password is required" });
+      return res.status(400).json({
+        message: "Le mot de passe est requis",
+      });
     }
     if (!userName) {
-      return res.status(400).json({ message: "username is required" });
+      return res.status(400).json({
+        message: "Le nom d'utilisateur est requis",
+      });
     }
-    if (user) {
-      return res.status(400).json({ message: "user already exist" });
 
-    }
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create the new user
     const newUser = new CompanyModel({
       userName: userName,
-      companyName: req.body.companyName,
-      responsable: req.body.responsable,
-      matricule_fiscale: req.body.matricule_fiscale,
-      email: req.body.email,
-      role: req.body.role,
-      address: req.body.address,
-      city: req.body.city,
-      country: req.body.country,
       password: hashedPassword,
-      phone: req.body.phone,
-      status: req.body.status,
-      commerceRegister: req.files.commerceRegister[0].path,
-      logo: req.files.logo[0].path,
+      companyName: companyName,
+      email: email,
+      phone: phone,
+      responsable: '',
+      role: 1, // Set a default role
+      status: 1, // Active status
+      logo: `https://ui-avatars.com/api/?name=${userName.charAt(0)}+${companyName.charAt(0)}&background=6FA1FF&size=256&rounded=true&color=fff`,
+      matricule_fiscale: '',
+      address: '',
+      city: '',
+      country: '',
     });
+
+    // Save the new user
     await newUser.save();
-    return res.status(201).json({ message: "User is successfully created " });
+
+    // Generate JWT token
+    const token = jwt.sign({ id: newUser._id, role: newUser.role }, "secret");
+
+    // Return the token and user data
+    return res.status(201).json({
+      message: "Entreprise enregistrée avec succès",
+      token,
+      userID: newUser._id,
+      roleID: newUser.role,
+    });
   } catch (error) {
     console.log(error.message);
     next(new CustomError(error.message, 500));
@@ -55,17 +92,17 @@ export const loginCompany = async (req, res) => {
   const user = await CompanyModel.findOne({ userName });
   try {
     if (!user) {
-      return res.status(200).json({ message: "User doen't exist!" });
+      return res.status(200).json({ message: "Nom d'utilisateur ou mot de passe incorrect" });
     }
     if (user.status === 3) {
-      return res.status(200).json({ message: "Company is restricted." });
+      return res.status(200).json({ message: "L'utilisateur est restreint" });
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       return res
         .status(200)
-        .json({ message: "Username or password is incorrect" });
+        .json({ message: "Le mot de passe est incorrect" });
     }
     console.log(password, userName);
     const token = jwt.sign({ id: user._id,role:user.role }, "secret");
@@ -74,6 +111,8 @@ export const loginCompany = async (req, res) => {
     res.status(400).json({ error });
   }
 };
+
+
 // get products by company
 export const getProductByCompanyId = async (req, res, next) => {
   const { id } = req.params;
@@ -221,17 +260,16 @@ export const forgotPassword = async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "mr.iheb.mehrzi@gmail.com",
+        user: "mehdi.belguem@gmail.com",
         pass: "wuvncvuxssbzdedl",
       },
     });
 
     const resetUrl = `http://127.0.0.1:5173/reset-password?key=${token}`;
     const mailOptions = {
-      from: "mr.iheb.mehrzi@gmail.com",
       to: user.email,
-      subject: "Password Reset Request",
-      text: `Hello ${user.userName},\n\nYou are receiving this email because you (or someone else) has requested the reset of the password for your account.\n\nPlease click on the following link or paste it into your browser to complete the process:\n\n${resetUrl}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`,
+      subject: "Demande de réinitialisation de mot de passe",
+      text: `Bonjour ${user.userName},\n\nVous recevez cet e-mail parce que vous (ou quelqu'un d'autre) avez demandé la réinitialisation du mot de passe de votre compte.\n\nVeuillez cliquer sur le lien suivant ou le copier dans votre navigateur pour compléter le processus:\n\n${resetUrl}\n\nSi vous n'avez pas demandé cela, veuillez ignorer cet e-mail et votre mot de passe restera inchangé.\n`,
     };
 
     await transporter.sendMail(mailOptions);

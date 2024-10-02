@@ -18,6 +18,7 @@ export const CompanySchema = new mongoose.Schema(
     logo: { type: String },
     commerceRegister: { type: String },
     status: { type: Number },
+    created_at : { type: Date, default: Date.now }
   },
   { toJSON: { virtuals: true } },
   { timestamps: { createdAt: "created_at" } }

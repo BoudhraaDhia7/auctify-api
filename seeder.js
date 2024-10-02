@@ -17,20 +17,20 @@ const hashedUserPassword = bcrypt.hashSync("testest", 10);
 // Users seeders
 export const users = [
   {
-    userName: "mahdi",
-    firstName: "mahdi",
+    userName: "mehdi",
+    firstName: "mehdi",
     lastName: "belgacem",
     password: hashedUserPassword,
     address: "123 Main St",
     city: "New York",
     email: "mahdi@gmail.com",
     phone: 12345678,
-    amountRecieved: 500,
-    amountSent: 100,
+    amountRecieved: 0,
+    amountSent: 0,
     status: 1,
     avatar: `https://ui-avatars.com/api/?name=${'M'}+${'B'}&background=6FA1FF&size=256&rounded=true&color=fff`,
     role: 2,
-    solde: 400,
+    solde: 0,
     wallet_code: 987654,
     pushToken: "pushTokenMahdi",
   }
@@ -93,71 +93,111 @@ const createCartPackSeeders = async () => {
 const createCompanySeeders = async () => {
   const companySeeders = [
     {
-      userName: 'compUser1',
-      companyName: 'Company One',
-      responsable: 'John Doe',
+      userName: 'orange',
+      companyName: 'Orange Tunisie',
+      responsable: 'Ali missaoui',
       matricule_fiscale: 'MF12345',
-      address: '1234 Business Rd',
-      city: 'Business City',
-      country: 'USA',
+      address: 'Lac 2, Tunis',
+      city: 'Tunis',
+      country: 'Tunisie',
       password: hashedPassword,
-      email: 'contact@companyone.com',
-      phone: '123-456-7890',
+      email: 'contact@orange.com',
+      phone: '22 111 333',
       role: 1,
-      logo: `https://ui-avatars.com/api/?name=${'C'}+${'O'}&background=6FA1FF&size=256&rounded=true&color=fff`,
-      commerceRegister: 'CR12345',
       status: 1,
+      logo: `https://ui-avatars.com/api/?name=${'O'}+${'T'}&background=6FA1FF&size=256&rounded=true&color=fff`,
+      commerceRegister: 'CR12345',
+      created_at: new Date("2024-09-30T09:00:00Z"),
     },
 
     {
-      userName: 'compUser2',
-      companyName: 'Company Two',
-      responsable: 'Jane Doe',
+      userName: 'T-T',
+      companyName: 'Tunisie Telecom',
+      responsable: 'Mohamed Fadhel Kraiem',
       matricule_fiscale: 'MF12346',
-      address: '1234 Market St',
-      city: 'Commerce Town',
-      country: 'Canada',
+      address: '13, Rue Jughurta, 1002 Tunis',
+      city: 'Tunis',
+      country: 'Tunisie',
       password: hashedPassword,
-      email: 'contact@companytwo.com',
-      phone: '234-567-8901',
+      email: 'contact@tunisie-telecome.tn',
+      phone: '33 000 222',
       role: 1,
-      logo: `https://ui-avatars.com/api/?name=${'C'}+${'T'}&background=6FA1FF&size=256&rounded=true&color=fff`,
+      logo: `https://ui-avatars.com/api/?name=${'T'}+${'T'}&background=6FA1FF&size=256&rounded=true&color=fff`,
       commerceRegister: 'CR12346',
       status: 1,
+      created_at: new Date("2024-09-30T09:00:00Z"),
     },
 
     {
-      userName: 'compUser3',
-      companyName: 'Company Three',
-      responsable: 'Jim Beam',
+      userName: 'Monoprix Tunisia',
+      companyName: 'Monoprix Tunisia',
+      responsable: 'Mohamed Bouzguenda',
       matricule_fiscale: 'MF12347',
-      address: '1234 Trade Ave',
-      city: 'Trade City',
-      country: 'UK',
+      address: '14, Rue de Marseille, 1000 Tunis',
+      city: 'Tunis',
+      country: 'Tunisie',
       password: hashedPassword,
-      email: 'contact@companythree.com',
+      email: 'contact@monoprix.com',
       phone: '345-678-9012',
       role: 1,
-      logo: `https://ui-avatars.com/api/?name=${'C'}+${'U'}&background=6FA1FF&size=256&rounded=true&color=fff`,
+      logo: `https://ui-avatars.com/api/?name=${'M'}+${'T'}&background=6FA1FF&size=256&rounded=true&color=fff`,
       commerceRegister: 'CR12347',
       status: 1,
+      created_at: new Date("2024-09-30T09:00:00Z"),
+    },
+
+    {
+      userName: 'carrefour',
+      companyName: 'Carrefour Tunisia',
+      responsable: 'Ahmed Ben Salah',
+      matricule_fiscale: 'MF12348',
+      address: '15, Rue de Paris, 1000 Tunis',
+      city: 'Tunis',
+      country: 'Tunisie',
+      password: hashedPassword,
+      email: 'contact@carrefour.com',
+      phone: '44 555 666',
+      role: 1,
+      logo: `https://ui-avatars.com/api/?name=${'C'}+${'T'}&background=6FA1FF&size=256&rounded=true&color=fff`,
+      commerceRegister: 'CR12348',
+      status: 1,
+      created_at: new Date("2024-09-30T09:00:00Z"),
     },
 
     {
       userName: 'admin',
-      companyName: 'Company Five',
+      companyName: 'admin',
       responsable: 'Jack Ripper',
       matricule_fiscale: 'MF12349',
       address: '1234 Enterprise Ln',
-      city: 'Enterprise City',
-      country: 'New Zealand',
+      city: 'Tunis',
+      country: 'Tunisie',
       password: hashedPasswordAdmin,
-      email: 'contact@companyfive.com',
-      phone: '567-890-1234',
+      email: 'contact@auctify.com',
+      phone: '20 103 080',
       role: 2,
       logo: `https://ui-avatars.com/api/?name=${'A'}+${'D'}&background=6FA1FF&size=256&rounded=true&color=fff`,
       commerceRegister: 'CR12349',
-      status: 1
+      status: 1,
+      created_at: new Date("2024-09-30T09:00:00Z"),
+    },
+
+    {
+      userName: 'delice',
+      companyName: 'Délice Danone',
+      responsable: 'Sami Bouzid',
+      matricule_fiscale: 'MF12350',
+      address: '16, Rue de la Liberté, 1000 Tunis',
+      city: 'Tunis',
+      country: 'Tunisie',
+      password: hashedPassword,
+      email: 'contact@delice.com',
+      phone: '55 666 777',
+      role: 1,
+      logo: `https://ui-avatars.com/api/?name=${'D'}+${'D'}&background=6FA1FF&size=256&rounded=true&color=fff`,
+      commerceRegister: 'CR12350',
+      status: 1,
+      created_at: new Date("2024-09-30T09:00:00Z"),
     },
   ];
 
@@ -281,6 +321,7 @@ const clearDatabase = async () => {
     await CompanyModel.deleteMany({});
     await ProductModel.deleteMany({});
     await UserModel.deleteMany({});
+    await ParticipantModel.deleteMany({});
   } catch (err) {
     console.error("Error clearing database!", err);
   }
@@ -295,14 +336,14 @@ const runSeeders = async () => {
     await clearDatabase();
     console.log("Database cleared!");
 
-    await createBetSeeders();
-    console.log("Bet seeding completed!");
+    // await createBetSeeders();
+    // console.log("Bet seeding completed!");
 
-    await createCartPackSeeders();
-    console.log("Pack seeding completed!");
+    // await createCartPackSeeders();
+    // console.log("Pack seeding completed!");
 
-    await createNoteSeeders();
-    console.log("Note seeding completed!");
+    // await createNoteSeeders();
+    // console.log("Note seeding completed!");
 
     const addUsers = await UserModel.insertMany(users);
     console.log("User seeding completed!");
@@ -313,8 +354,8 @@ const runSeeders = async () => {
     const products = await createProductSeeders(companies);
     console.log("Product seeding completed!");
 
-    await createParticipantSeeders(products, addUsers[0]);
-    console.log("Participant seeding completed!");
+    // await createParticipantSeeders(products, addUsers[0]);
+    // console.log("Participant seeding completed!");
 
     console.log("Database seeding completed!");
     mongoose.connection.close();
