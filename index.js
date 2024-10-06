@@ -46,16 +46,20 @@ app.use(errorHandler);
 
 export const io = new Server(httpServer, {
   cors: {
-    origin: "*", // or your front-end URL
+    origin: "*",
     methods: ["GET", "POST", "PATCH", "DELETE"],
   },
-}); // Create a new instance of socket.io and pass your http server as argument
+});
 
 const connectedUsers = {};
 
+app.get("/test-socket", (req, res) => {
+  io.emit("newWinner", { playerId: '6702630738681253f7aafd8a' });
+  res.send("Test event emitted");
+});
 io.on("connection", (socket) => {
   console.log(`New client connected with socket ID ${socket.id}`);
-
+ 
   socket.on("joinAuction", async (data) => {
     //socket.join(data);
     console.log(`user with id: ${socket.id} joined room :${data.nickname}`);

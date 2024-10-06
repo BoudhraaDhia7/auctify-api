@@ -5,13 +5,24 @@ import { v4 as uuidv4 } from "uuid";
 import { CreateTransaction, UpdateUserSolde } from "../utils/Helpers.js";
 import mongoose from "mongoose";
 import {WinnerModel} from "../models/Winners.js";
+import { TransactionModel } from "../models/Transactions.js";
+import { AlertsModel } from "../models/Alerts.js";
+import { io } from "../index.js";
 
 export const registerForProduct = async (req, res, next) => {
   let transactionIdentifier = uuidv4();
+
+  const { player, product, amountGiven } = req.body;
   try {
-    const { player, product, amountGiven } = req.body;
     const user = await UserModel.findById(player);
     const prod = await ProductModel.findById(product);
+
+    const totalAmount = await ParticipantModel.aggregate([
+      { $match: { product: new mongoose.Types.ObjectId(prod._id) } }, // Corrected: using `new`
+      { $group: { _id: null, totalAmountGiven: { $sum: "$amountGiven" } } }, // Sum up the amountGiven field
+    ]);
+
+    console.log("azeazeaze",totalAmount);
 
     if (!user) {
       return res.json({ message: "User doen't exist!" });
@@ -25,6 +36,25 @@ export const registerForProduct = async (req, res, next) => {
       product: product,
       player: player,
     });
+    
+  
+    if (prod.price * prod.benefit < totalAmount[0].totalAmountGiven) {
+        prod.status = 2;
+        prod.openDate = new Date(new Date().getTime() + 60000);
+        console.log("prazeazeazazeod", prod , prod.files[0].filePath);
+        const alertinfo = new AlertsModel({
+          avatar: prod.files[0].filePath,
+          nickname: prod.name,
+          content: "Une enchère commencera dans une minute pour " + prod.name,
+          link: "/productinfo/" + prod._id,
+        });
+        
+        const alertData = await alertinfo.save();
+        io.emit("newNotification", alertData);
+        
+        
+        await prod.save();
+    }
 
     await newParticipation.save();
 
@@ -32,10 +62,14 @@ export const registerForProduct = async (req, res, next) => {
 
     await UpdateUserSolde(player, amountGiven)
 
+
     return res.status(200).json({
       message: "particpation done successfully",
       participation: newParticipation,
     });
+
+
+    
   } catch (error) {
     res.status(400).json(error);
   }

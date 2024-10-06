@@ -6,7 +6,7 @@ import { getnotifications, updateNotifStatus } from "../controllers/Notification
 const router = express.Router();
 
 
-router.get("/getNotifications", verifyToken, getnotifications);
+router.get("/getNotifications",  getnotifications);
 router.post("/updateNotifStatus", verifyToken, updateNotifStatus);
 
 

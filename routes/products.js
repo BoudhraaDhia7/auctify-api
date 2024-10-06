@@ -1,6 +1,7 @@
 import express from "express";
 import { upload } from "../utils/multer.js";
 import {
+    buyPack,
     createProduct,
     getAllProducts,
     getEndedProducts,
@@ -17,5 +18,5 @@ router.get("/getAllProds", getAllProducts);
 router.get("/getInProgressProducts/:cid", getInProgressProducts);
 router.get("/getEndedProducts/:cid", getEndedProducts);
 router.post("/getProductById", verifyToken, getProductById);
-
+router.post("/buyPack", verifyToken, buyPack);
 export { router as productRouter };

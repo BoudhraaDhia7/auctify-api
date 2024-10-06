@@ -12,7 +12,7 @@ import { ParticipantModel } from "./models/Participants.js";
 // Hashed passwords for users and companies
 const hashedPassword = bcrypt.hashSync("password", 10);
 const hashedPasswordAdmin = bcrypt.hashSync("admin", 10);
-const hashedUserPassword = bcrypt.hashSync("testest", 10);
+const hashedUserPassword = bcrypt.hashSync("password", 10);
 
 // Users seeders
 export const users = [

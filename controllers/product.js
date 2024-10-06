@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 import { ProductModel } from "../models/Products.js";
 import { AddNewProdAlert } from "../utils/Helpers.js";
+import { CartPackModel } from "../models/CartPacks.js";
+import { UserModel } from "../models/Users.js";
+import { io } from "../index.js";
 
 export const createProduct = async (req, res, next) => {
   try {
@@ -440,5 +443,35 @@ export const getProductById = async (req, res, next) => {
     console.log(error);
     res.status(400).send(error.message);
 
+  }
+};
+
+
+export const buyPack = async (req, res) => {
+  const { packId } = req.body;
+  console.log(packId);
+  try {
+    const pack = await CartPackModel.findById(packId);
+    if (!pack) {
+      return res.status(404).json({ message: 'Le pack demandé est introuvable.' });
+    }
+
+    const user = await UserModel.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur introuvable.' });
+    }
+
+    user.solde = (user.solde || 0) + pack.soldeValue;
+
+    await user.save();
+
+    return res.status(200).json({
+      message: 'Félicitations ! Vous avez acheté le pack avec succès.',
+      newSolde: `Votre nouveau solde est de ${user.solde} DT.`,
+      finalSolde: user.solde,
+    });
+  } catch (error) {
+    console.error('Erreur lors de l\'achat du pack:', error);
+    return res.status(500).json({ message: 'Une erreur interne est survenue. Veuillez réessayer plus tard.' });
   }
 };
