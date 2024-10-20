@@ -35,6 +35,13 @@ export const unJoinAuction = async (socket) => {
 
 export const MiseAndUpdateSolde = async (data) => {
   try {
+
+    //check if user has enough money
+    const user = await UserModel.findById(data.idUser);
+
+    if(user.solde < data.amount){
+      return "solde is not enough to participate";
+    }
     
     const bet =  BetsModel({
       idUser: data.idUser,

@@ -6,6 +6,7 @@ import { ProductModel } from "../models/Products.js";
 import mongoose from "mongoose";
 import nodemailer from "nodemailer";
 import {UserModel} from "../models/Users.js";
+import { transport } from "../settings.js";
 //register company
 export const registerCompany = async (req, res, next) => {
   try {
@@ -243,36 +244,36 @@ export const getInfosByCompanyId = async (req, res, next) => {
 };
 
 export const forgotPassword = async (req, res) => {
-  const { email } = req.body;
-
+  const { email, isUser } = req.body;
+  console.log(email, isUser);
+  console.log(await UserModel.find());
+  const Model = isUser ? UserModel : CompanyModel;
+  
   try {
-    const user = await CompanyModel.findOne({ email });
+    const entity = await Model.findOne({ email });
 
-    if (!user) {
+    if (!entity) {
       return res
-        .status(400)
+        .status(404)
         .json({ error: "User with that email does not exist" });
     }
 
-    const token = jwt.sign({ _id: user._id,email :user.email}, "secret", { expiresIn: "60m" });
-
-    // Send an email to the user's email address with the token and link to reset password page
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "mehdi.belguem@gmail.com",
-        pass: "wuvncvuxssbzdedl",
-      },
-    });
+    const token = jwt.sign({ _id: entity._id, email: entity.email }, "secret", { expiresIn: "60m" });
 
     const resetUrl = `http://127.0.0.1:5173/reset-password?key=${token}`;
     const mailOptions = {
-      to: user.email,
+      to: entity.email,
       subject: "Demande de réinitialisation de mot de passe",
-      text: `Bonjour ${user.userName},\n\nVous recevez cet e-mail parce que vous (ou quelqu'un d'autre) avez demandé la réinitialisation du mot de passe de votre compte.\n\nVeuillez cliquer sur le lien suivant ou le copier dans votre navigateur pour compléter le processus:\n\n${resetUrl}\n\nSi vous n'avez pas demandé cela, veuillez ignorer cet e-mail et votre mot de passe restera inchangé.\n`,
+      html: `
+      <p>Bonjour ${entity.userName},</p>
+      <p>Vous recevez cet e-mail parce que vous (ou quelqu'un d'autre) avez demandé la réinitialisation du mot de passe de votre compte.</p>
+      <p>Veuillez cliquer sur le bouton suivant ou le copier dans votre navigateur pour compléter le processus:</p>
+      <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: #ffffff; background-color: #007bff; text-decoration: none; border-radius: 5px;">Réinitialiser le mot de passe</a>
+      <p>Si vous n'avez pas demandé cela, veuillez ignorer cet e-mail et votre mot de passe restera inchangé.</p>
+      `,
     };
 
-    await transporter.sendMail(mailOptions);
+    await transport.sendMail(mailOptions);
     res.status(200).json({ message: "Email sent" });
   } catch (error) {
     console.error(error);
@@ -281,39 +282,46 @@ export const forgotPassword = async (req, res) => {
 };
 
 export const resetPasswordCompany = async (req, res, next) => {
-  try {
-    const { email, newPassword, confirmationNewPassword} = req.body;
 
-    const company = await CompanyModel.findOne({ email });
+    const { email, newPassword, confirmationNewPassword } = req.body;
 
-    if (!company) {
+    try {
+    const user = await UserModel.findOne({ email });
+    const company = await CompanyModel.findOne({ email});
+
+
+    if (!user && !company) {
       return res.status(404).json({ message: "User doesn't exist!" });
     }
 
-    const isPasswordValid = await bcrypt.compare(newPassword, company.password);
+    const isPasswordValid = await bcrypt.compare(newPassword, user?.password || company?.password);
 
     if (isPasswordValid) {
       return res
-          .status(400)
-          .json({ message: "New password must be different from the current password" });
+        .status(400)
+        .json({ message: "Le nouveau mot de passe doit être différent du mot de passe actuel" });
     }
 
     if (newPassword !== confirmationNewPassword) {
       return res
-          .status(400)
-          .json({ message: "Password confirmation doesn't match" });
+        .status(400)
+        .json({ message: "Password confirmation doesn't match" });
     }
-
+  
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     if (hashedPassword) {
-      await company.updateOne({ password: hashedPassword });
+        if(user)
+          await user.updateOne({ password : hashedPassword });
+        else
+          await company.updateOne({ password : hashedPassword });
     }
-
+ 
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
+
 
 export const updatePasswordCompany = async (req, res, next) => {
   try {

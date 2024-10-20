@@ -27,7 +27,10 @@ const httpServer = createServer(app);
 app.use(express.json());
 app.use(cors());
 app.use(morgan("common"));
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", (req, res, next) => {
+  console.log("Trying to access:", req.path);
+  next();
+}, express.static("uploads"));
 app.use("/auth", userRouter);
 app.use("/winner", winnerRouter);
 app.use("/product", productRouter);

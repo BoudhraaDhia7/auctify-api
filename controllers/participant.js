@@ -13,7 +13,7 @@ export const registerForProduct = async (req, res, next) => {
   let transactionIdentifier = uuidv4();
 
   const { player, product, amountGiven } = req.body;
-  try {
+
     const user = await UserModel.findById(player);
     const prod = await ProductModel.findById(product);
 
@@ -22,7 +22,6 @@ export const registerForProduct = async (req, res, next) => {
       { $group: { _id: null, totalAmountGiven: { $sum: "$amountGiven" } } }, // Sum up the amountGiven field
     ]);
 
-    console.log("azeazeaze",totalAmount);
 
     if (!user) {
       return res.json({ message: "User doen't exist!" });
@@ -37,11 +36,14 @@ export const registerForProduct = async (req, res, next) => {
       player: player,
     });
     
-  
-    if (prod.price * prod.benefit < totalAmount[0].totalAmountGiven) {
+    console.log(prod.price * prod.benefit, (totalAmount[0]?.totalAmountGiven ?? 0) + Math.abs(amountGiven));
+
+    
+    
+    if (prod.price * prod.benefit <= (totalAmount[0]?.totalAmountGiven ?? 0) + Math.abs(amountGiven)) {
         prod.status = 2;
         prod.openDate = new Date(new Date().getTime() + 60000);
-        console.log("prazeazeazazeod", prod , prod.files[0].filePath);
+
         const alertinfo = new AlertsModel({
           avatar: prod.files[0].filePath,
           nickname: prod.name,
@@ -55,7 +57,7 @@ export const registerForProduct = async (req, res, next) => {
         
         await prod.save();
     }
-
+    try {
     await newParticipation.save();
 
     await CreateTransaction(player, amountGiven, transactionIdentifier, 'PARTICIPATION');
