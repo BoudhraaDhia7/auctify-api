@@ -88,9 +88,10 @@ export const registerCompany = async (req, res, next) => {
 //login company
 export const loginCompany = async (req, res) => {
   const { userName, password } = req.body;
-  const test = await CompanyModel.find();
-  console.log(test);
-  const user = await CompanyModel.findOne({ userName });
+
+  const user = await CompanyModel.findOne({
+    $or: [{ userName: userName }, { email: userName }],
+  });
   try {
     if (!user) {
       return res.status(200).json({ message: "Nom d'utilisateur ou mot de passe incorrect" });
